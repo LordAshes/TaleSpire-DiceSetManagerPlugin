@@ -32,7 +32,7 @@ This method creates dice set (consisting of one more dice and one or more modifi
 The dice will be created in the TS dice tray, automatically moved to the board, and registed so that other
 methods can act on the dice set using the provided name. Example:
 
-DiceSetManager.CreateDiceSet("Longbow Damage", "1D8+3+2D6")
+*DiceSetManager.CreateDiceSet("Longbow Damage", "1D8+3+2D6")*
 
 #### ThrowDiceSet(string dicesetName, float vertical)
 
@@ -40,15 +40,15 @@ This method takes all the dice associated with the indicated dice set, gathers t
 The second parameter, vertical, is optional. It determines how far the dice are lifted before they are rolled.
 Examples:
 
-DiceSetManager.ThrowDiceSet("Longbow Damage")
-DiceSetManager.ThrowDiceSet("Longbow Damage", 7.0f)
+*DiceSetManager.ThrowDiceSet("Longbow Damage")*
+*DiceSetManager.ThrowDiceSet("Longbow Damage", 7.0f)*
 
 #### ClearDiceSet(string dicesetName)
 
 This method unregisters the indicated dice set and removes all dice associated with that dice set. Use this method,
 instead of the core TS methods, to remove dice so that the dice set is properly unregistered. Example:
 
-DiceSetManager.ClearDiceSet("Longbow Damage")
+*DiceSetManager.ClearDiceSet("Longbow Damage")*
 
 #### ClearAllDiceSets()
 
@@ -56,7 +56,7 @@ This method unregisters and all the registered dice sets and removes all the dic
 Use this functionality to remove dice sets, instead of using the core TS methods, in order to ensure that the
 dice sets are properly unregistered. Example:
 
-DiceSetManager.ClearAllDiceSets()
+*DiceSetManager.ClearAllDiceSets()*
 
 #### Subscribe(SubscriptionEvent action, string identity, Action<string> callback)
 
@@ -71,8 +71,8 @@ a parameter which passes to it the event arguments as a JSON string. The event a
 dice set that was created, provides the results of a dice set roll (both total and details) or provides the name
 and roll id of the dice set that was cleared. Examples:
   
-Subscribe(SubscriptionEvent.diceResult, "DiceSetManagerParentPlugin", (s)=>{ Debug.Log(s); });
-Subscribe(SubscriptionEvent.diceAdd | SubscriptionEvent.diceResult, "DiceSetManagerParentPlugin", (s)=>{ Debug.Log(s); });
+*Subscribe(SubscriptionEvent.diceResult, "DiceSetManagerParentPlugin", (s)=>{ Debug.Log(s); });*
+*Subscribe(SubscriptionEvent.diceAdd | SubscriptionEvent.diceResult, "DiceSetManagerParentPlugin", (s)=>{ Debug.Log(s); });*
 
 ### Advanced Features
 
