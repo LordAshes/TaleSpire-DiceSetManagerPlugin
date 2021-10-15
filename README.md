@@ -85,6 +85,7 @@ dice set that was created, provides the results of a dice set roll (both total a
 and roll id of the dice set that was cleared. Examples:
 
 ```Subscribe(SubscriptionEvent.diceResult, "BobBarker", (s)=>{ Debug.Log(s); });```
+
 ```Subscribe(SubscriptionEvent.diceAdd | SubscriptionEvent.diceResult, "BobBarker", (s)=>{ Debug.Log(s); });```
 
 #### Unsubscribe(string identity)
@@ -131,7 +132,7 @@ offset to the die as when the method was called. This mean that when the die is 
 that die. Tracking of the die will continue until the roll is completed. Call tracking after the roll is stared
 to ensure that tracking does not end prematurely. Example:
 
-```DiceSetManagerPlugin.Instance.DiceCamTrackDiceSet("Attac");```
+```DiceSetManagerPlugin.Instance.DiceCamTrackDiceSet("Attack");```
 
 ### Advanced Features
 
