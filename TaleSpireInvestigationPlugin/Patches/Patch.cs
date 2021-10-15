@@ -13,6 +13,13 @@ namespace LordAshes
     {
         public static int overrideButton = -1;
 
+        public static DiceSetManagerPlugin Instance = null;
+
+        public static void SetInstance(DiceSetManagerPlugin self)
+        {
+            Instance = self;
+        }
+
         /// <summary>
         /// Patch for overcoming the conditions in the core ThrowDice method
         /// </summary>
@@ -113,7 +120,7 @@ namespace LordAshes
         {
             public static bool Prefix(Die die, int rollId, bool gmOnly)
             {
-                // Bypass the original code
+                // Execute original code
                 return true;
             }
 
@@ -121,31 +128,35 @@ namespace LordAshes
             {
                 // See if the dice set is already registered
                 bool found = false;
-                foreach(KeyValuePair<string,DiceSetManager.DiceSet> diceset in DiceSetManager.diceSets)
+                foreach(KeyValuePair<string,DiceSet> diceset in Instance.DiceSets)
                 {
                     // If the dice set is already registered
                     if(diceset.Value.RollId==rollId)
                     { 
                         // Add die to dice set
                         diceset.Value.Dice.Add(die);
+                        foreach (KeyValuePair<string, Action<string>> sub in Instance.Subscriptions[SubscriptionEvent.diceAdd])
+                        {
+                            sub.Value("{\"RollId\": "+rollId+", \"DiceCount\": "+diceset.Value.Dice.Count+"}");
+                        }
                         found = true;
                         break;
                     }
                 }
-                if(!found)
+                if (!found)
                 {
                     // If the dice set does not already exist
                     string tempId = System.Guid.NewGuid().ToString();
-                    DiceSetManager.diceSets.Add(tempId, new DiceSetManager.DiceSet() { RollId = rollId });
-                    DiceSetManager.diceSets[tempId].Dice.Add(die);
-
-                    // Process dice set create notifications
-                    DiceSetManagerPlugin.DiceSetManager.rollId = rollId;
-                    foreach (KeyValuePair<string, Action<string>> sub in DiceSetManager.subscriptions[DiceSetManager.SubscriptionEvent.diceAdd])
+                    Instance.DiceSets.Add(tempId, new DiceSet() { RollId = rollId });
+                    Instance.DiceSets[tempId].Dice.Add(die);
+                    foreach (KeyValuePair<string, Action<string>> sub in Instance.Subscriptions[SubscriptionEvent.diceAdd])
                     {
-                        sub.Value(JsonConvert.SerializeObject(rollId));
+                        sub.Value("{\"RollId\": " + rollId + ", \"DiceCount\": " + Instance.DiceSets[tempId].Dice.Count + "}");
                     }
                 }
+
+                // Process dice set create notifications
+                Instance.rollId = rollId;
             }
         }
 
@@ -187,13 +198,13 @@ namespace LordAshes
                     message = message + " = " + total;
                     // Update dice set name if different from current dictionary entry
                     string tempId = "";
-                    foreach(KeyValuePair<string,DiceSetManager.DiceSet> diceset in DiceSetManager.diceSets)
+                    foreach(KeyValuePair<string, DiceSet> diceset in Instance.DiceSets)
                     {
                         if(diceset.Value.RollId == diceRollResultData.RollId)
                         {
                             if((diceset.Key != diceRollResultData.GroupResults[0].Name) && (diceRollResultData.GroupResults[0].Name != ""))
                             {
-                                DiceSetManager.diceSets.Add(diceRollResultData.GroupResults[0].Name, diceset.Value);
+                                Instance.DiceSets.Add(diceRollResultData.GroupResults[0].Name, diceset.Value);
                                 tempId = diceset.Key;
                                 break;
                             }
@@ -203,12 +214,12 @@ namespace LordAshes
                             }
                         }
                     }
-                    if (tempId != "") { DiceSetManager.diceSets.Remove(tempId); }
+                    if (tempId != "") { Instance.DiceSets.Remove(tempId); }
 
                     // Process dice result notifications
-                    foreach(KeyValuePair<string,Action<string>> sub in DiceSetManager.subscriptions[DiceSetManager.SubscriptionEvent.diceResult])
+                    foreach(KeyValuePair<string,Action<string>> sub in Instance.Subscriptions[SubscriptionEvent.diceResult])
                     {
-                        sub.Value(JsonConvert.SerializeObject(new DiceSetManager.DiceSetRollSpecs() { name = diceRollResultData.GroupResults[0].Name, total = total, details = diceRollResultData }));
+                        sub.Value(JsonConvert.SerializeObject(new DiceSetRollSpecs() { Name = diceRollResultData.GroupResults[0].Name, Total = total, Details = diceRollResultData }));
                     }
                 }
             }
