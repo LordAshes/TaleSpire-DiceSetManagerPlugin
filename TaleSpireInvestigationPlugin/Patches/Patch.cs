@@ -135,6 +135,7 @@ namespace LordAshes
                     { 
                         // Add die to dice set
                         diceset.Value.Dice.Add(die);
+                        if (diceset.Value.Formula == "") { diceset.Value.Formula = DiceSetManagerPlugin.Instance.rollFormula; }
                         foreach (KeyValuePair<string, Action<string>> sub in Instance.Subscriptions[SubscriptionEvent.diceAdd])
                         {
                             sub.Value("{\"RollId\": "+rollId+", \"DiceCount\": "+diceset.Value.Dice.Count+"}");
@@ -147,7 +148,7 @@ namespace LordAshes
                 {
                     // If the dice set does not already exist
                     string tempId = System.Guid.NewGuid().ToString();
-                    Instance.DiceSets.Add(tempId, new DiceSet() { RollId = rollId });
+                    Instance.DiceSets.Add(tempId, new DiceSet() { RollId = rollId, Formula = DiceSetManagerPlugin.Instance.rollFormula });
                     Instance.DiceSets[tempId].Dice.Add(die);
                     foreach (KeyValuePair<string, Action<string>> sub in Instance.Subscriptions[SubscriptionEvent.diceAdd])
                     {

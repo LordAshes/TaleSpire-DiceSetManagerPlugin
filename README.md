@@ -7,13 +7,9 @@ both manually (by the player) like core TS dice or automatically from code (such
 
 ## Change Log
 
-1.1.0: Reworked namespace to allow using Coroutines eliminating need for any Update loop code.
+1.0.1: Fixed documentation formatting
 
-1.1.0: Added dice cam functionality.
-
-1.0.1: Fixed documentation formatting.
-
-1.0.0: Initial release.
+1.0.0: Initial release
 
 ## Install
 
@@ -28,40 +24,31 @@ This plugin is ideal when the results of the rolls are not to be automatically d
 the game mechanics for a ruleset. If you want to retain the original core TS dice result display then consider
 using Hollo's DiceCallbackPlugin instead.
 
-### DiceSet Features
-
-Most methods are accessed through a Instance variable of the DiceSetManagerPlugin as can be seen in the example code.
+### Basic Features
 
 #### CreateDiceSet(string dicesetName, string formula)
 
-This method creates dice set (consisting of one or more dice and one or more modifiers) with the given name.
+This method creates dice set (consisting of one more dice and one or more modifiers) with the given name.
 The dice will be created in the TS dice tray, automatically moved to the board, and registed so that other
 methods can act on the dice set using the provided name. Example:
 
-```DiceSetManagerPlugin.Instance.CreateDiceSet("Longbow Damage", "1D8+3+2D6")```
+*DiceSetManager.CreateDiceSet("Longbow Damage", "1D8+3+2D6")*
 
-#### MoveDiceSet(string dicesetName, Vector3 pos)
-
-This method takes all the dice associated with the indicated dice set, and moves them to the specified location.
-Examples:
-
-```DiceSetManagerPlugin.Instance.MoveDiceSet("Longbow Damage", new Vector3(2f,2.5f,3.0f));```
-
-#### ThrowDiceSet(string dicesetName, float lift)
+#### ThrowDiceSet(string dicesetName, float vertical)
 
 This method takes all the dice associated with the indicated dice set, gathers them, lifts them, and rolls them.
-The second parameter, lift, is optional. It determines how far the dice are lifted before they are rolled.
+The second parameter, vertical, is optional. It determines how far the dice are lifted before they are rolled.
 Examples:
 
-```DiceSetManagerPlugin.Instance.ThrowDiceSet("Longbow Damage")```
-```DiceSetManagerPlugin.Instance.ThrowDiceSet("Longbow Damage", 7.0f)```
+*DiceSetManager.ThrowDiceSet("Longbow Damage")*
+*DiceSetManager.ThrowDiceSet("Longbow Damage", 7.0f)*
 
 #### ClearDiceSet(string dicesetName)
 
 This method unregisters the indicated dice set and removes all dice associated with that dice set. Use this method,
 instead of the core TS methods, to remove dice so that the dice set is properly unregistered. Example:
 
-```DiceSetManagerPlugin.Instance.ClearDiceSet("Longbow Damage")```
+*DiceSetManager.ClearDiceSet("Longbow Damage")*
 
 #### ClearAllDiceSets()
 
@@ -69,7 +56,7 @@ This method unregisters and all the registered dice sets and removes all the dic
 Use this functionality to remove dice sets, instead of using the core TS methods, in order to ensure that the
 dice sets are properly unregistered. Example:
 
-```DiceSetManagerPlugin.Instance.ClearAllDiceSets()```
+*DiceSetManager.ClearAllDiceSets()*
 
 #### Subscribe(SubscriptionEvent action, string identity, Action<string> callback)
 
@@ -83,62 +70,15 @@ indicates the function that should be called when the event occurs. The callback
 a parameter which passes to it the event arguments as a JSON string. The event arguments either identifies that
 dice set that was created, provides the results of a dice set roll (both total and details) or provides the name
 and roll id of the dice set that was cleared. Examples:
-
-```Subscribe(SubscriptionEvent.diceResult, "BobBarker", (s)=>{ Debug.Log(s); });```
-
-```Subscribe(SubscriptionEvent.diceAdd | SubscriptionEvent.diceResult, "BobBarker", (s)=>{ Debug.Log(s); });```
-
-#### Unsubscribe(string identity)
-
-This method provides a way to unsubscribe to all dice set events for a identity. Examples:
-
-```Unsubscribe("BobBarker")```
-
-### Dice Camera Features
-
-#### DiceCamSetup(float widthPos, float heightPos, float widthSize, float heightSize)
-
-This method sets up the Dice Cam. The first two parameters indicate the location of the Dice Cam viewport expressed
-as percentages of the entire screen. For example, a widthPos of 20 would be 20% of the way across the screen. The
-third and forth parameters indicate the size of the Dice Cam viewport again expressed as a percentage of the entire
-screen. Example:
-
-```DiceSetManagerPlugin.Instance.DiceCamSetup(5, 70, 20, 25);```
-
-### DiceCamShow(bool visible)
-
-This method is used to show and hide the Dice Cam. By default the Dice Cam starts hidden. With this method it is 
-possible to keep the Dice Cam visible at all time or to turn it on and off as needed. This method is used for both
-showing and hiding the Dice Cam but providing the appropriate setting to the method.
-
-```DiceSetManagerPlugin.Instance.DiceCamShow(true);```
-
-#### DiceCamMoveTo(Vector3 pos)
-
-This method moves the Dice Cam dolly (effectively moving the camera) to the indicated position. Example:
-
-```DiceSetManagerPlugin.Instance.DiceCamMoveTo(new Vector3(2f,3f,4f));```
-
-#### DiceCamRotateTo(Vector3 pos)
-
-This method rotates the Dice Cam on the dolly to the indicated Euler rotation (in degrees). Example:
-
-```DiceSetManagerPlugin.Instance.DiceCamMoveTo(new Vector3(45f,0f,0f));```
-
-#### DiceCamTrackDiceSet(Vector3 pos)
-
-This method attaches the Dice Cam to the first dice of the specified dice set and the Dice Cam keeps the same
-offset to the die as when the method was called. This mean that when the die is tossed the Dice Cam will follow
-that die. Tracking of the die will continue until the roll is completed. Call tracking after the roll is stared
-to ensure that tracking does not end prematurely. Example:
-
-```DiceSetManagerPlugin.Instance.DiceCamTrackDiceSet("Attack");```
+  
+*Subscribe(SubscriptionEvent.diceResult, "DiceSetManagerParentPlugin", (s)=>{ Debug.Log(s); });*
+*Subscribe(SubscriptionEvent.diceAdd | SubscriptionEvent.diceResult, "DiceSetManagerParentPlugin", (s)=>{ Debug.Log(s); });*
 
 ### Advanced Features
 
 #### diceSets
 
-DiceSetManagerPlugin.Instance.DiceSets is a dictionary which is indexed by the dice set name and contains a DiceSet. A DiceSet contains
+DiceSetManager.diceSets is a dictionary which is indexed by the dice set name and contains a DiceSet. A DiceSet contains
 the RollId (which is typically used internally) and Dice whcih is a List<Die> that identifies each of the Die objects in
 the dice set. These can be used to perform operations on the individual dice of a set (like re-roll a single die). The
 Die objects provide access to the actual Die game object in case the actual game object (such as the mesh) needs to be

@@ -23,6 +23,7 @@ namespace LordAshes
 
         // Holds the roll id of the last added dice
         private int rollId = -1;
+        private string rollFormula = "";
         private Vector3 dicePos = Vector3.zero;
         private bool tossDie = false;
 
@@ -37,7 +38,8 @@ namespace LordAshes
         public void CreateDiceSet(string dicesetName, string formula)
         {
             Debug.Log("Dice Set Manager Plugin: Loading DiceSet");
-            var command = $"talespire://dice/" + dicesetName.Replace(" ", "_").Replace(":", "-") + ":" + formula;
+            rollFormula = formula;
+            var command = $"talespire://dice/" + dicesetName.Replace(" ", "_").Replace(":", "-") + ":" + rollFormula;
             System.Diagnostics.Process.Start(command).WaitForExit();
             StartCoroutine((IEnumerator)ProcessDiceSetCreation(0.150f));
         }
@@ -171,7 +173,6 @@ namespace LordAshes
         {
             Debug.Log("Dice Set Manager Plugin: Dice Creation Sequence Started");
             yield return new WaitForSeconds(waitTime);
-            // yield return new WaitForSeconds(waitTime);
             Debug.Log("Dice Set Manager Plugin: Spawning DiceSet");
             SpawnDice();
             yield return new WaitForSeconds(waitTime);

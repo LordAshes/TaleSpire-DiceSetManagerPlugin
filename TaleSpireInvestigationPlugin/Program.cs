@@ -1,11 +1,12 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
-using System;
+using HarmonyLib;
 using UnityEngine;
 
-using HarmonyLib;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 
 namespace LordAshes
 {
@@ -15,21 +16,21 @@ namespace LordAshes
 		// Plugin info
 		public const string Name = "Dice Set Manager Plug-In";
 		public const string Guid = "org.lordashes.plugins.dicesetmanager";
-		public const string Version = "1.1.0.0";
+		public const string Version = "1.1.1.0";
 
-        /// <summary>
-        /// Function for initializing plugin
-        /// This function is called once by TaleSpire
-        /// </summary>
-        void Awake()
+		
+
+		/// <summary>
+		/// Function for initializing plugin
+		/// This function is called once by TaleSpire
+		/// </summary>
+		void Awake()
 		{
 			UnityEngine.Debug.Log("Dice Set Manager Plugin: Active.");
 
 			SetInstance(this);
 			var harmony = new Harmony(Guid);
 			harmony.PatchAll();
-
-			Subscribe(SubscriptionEvent.diceAdd | SubscriptionEvent.diceResult | SubscriptionEvent.diceClear, "Bob", (s) => Debug.Log(s));
 		}
 
 		/// <summary>
@@ -50,21 +51,19 @@ namespace LordAshes
 				camera.enabled = false;
 			}
 
-			if (Input.GetKeyUp(KeyCode.D))
+			if (StrictKeyCheck(new KeyboardShortcut(KeyCode.D, KeyCode.RightControl)))
             {
 				SystemMessage.AskForTextInput("Dice Creation", "Dice To Create (Name,Formula):", "OK", (s) => CreateDiceSet(s.Split(':')[0], s.Split(':')[1].Replace("X","D").Replace("x","D")), null, "Cancel", null);
             }
-			if (Input.GetKeyUp(KeyCode.Period))
+
+			if (StrictKeyCheck(new KeyboardShortcut(KeyCode.F, KeyCode.RightControl)))
 			{
-				ThrowDiceSet("Fire", 5f);
-			}
-			if (Input.GetKeyUp(KeyCode.Comma))
-			{
+				Debug.Log("Tossing "+DiceSets.ElementAt(0).Key+": "+DiceSets.ElementAt(0).Value.Formula);
 				DiceCamSetup(5, 70, 20, 25);
 				DiceCamMoveTo(new Vector3(0, 3, -3));
 				DiceCamRotateTo(new Vector3(45,0,0));
-				ThrowDiceSet("Fire", new Vector3(0,5,0));
-				DiceCamTrackDiceSet("Fire");
+				ThrowDiceSet(DiceSets.ElementAt(0).Key, new Vector3(0,5,0));
+				DiceCamTrackDiceSet(DiceSets.ElementAt(0).Key);
 			}
 		}
 
@@ -72,5 +71,16 @@ namespace LordAshes
 		{
 			return (CameraController.HasInstance && BoardSessionManager.HasInstance && BoardSessionManager.HasBoardAndIsInNominalState && !BoardSessionManager.IsLoading);
 		}
+
+		public static bool StrictKeyCheck(KeyboardShortcut check)
+		{
+			if (!check.IsUp()) { return false; }
+			foreach (KeyCode modifier in new KeyCode[] { KeyCode.LeftAlt, KeyCode.RightAlt, KeyCode.LeftControl, KeyCode.RightControl, KeyCode.LeftShift, KeyCode.RightShift })
+			{
+				if (Input.GetKey(modifier) != check.Modifiers.Contains(modifier)) { return false; }
+			}
+			return true;
+		}
+
 	}
 }

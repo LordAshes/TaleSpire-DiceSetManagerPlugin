@@ -17,6 +17,7 @@ namespace LordAshes
         public class DiceSet
         {
             public int RollId { get; set; } = -1;
+            public string Formula { get; set; } = "";
             public List<Die> Dice { get; set; } = new List<Die>();
         }
 
